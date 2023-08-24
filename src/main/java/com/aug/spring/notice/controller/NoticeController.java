@@ -192,7 +192,6 @@ public class NoticeController {
 				if(fileRename != null) {
 					// 있으면 기존 파일 삭제
 					this.deleteFile(request, fileRename);
-					
 				}
 				// 없으면 새로 업로드 하려는 파일 저장
 				Map<String, Object> infoMap = this.saveFile(uploadFile, request);

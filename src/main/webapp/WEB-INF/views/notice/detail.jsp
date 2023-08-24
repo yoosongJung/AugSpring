@@ -4,11 +4,11 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
-		<title>공지사항 등록</title>
+		<title>공지사항 상세</title>
 		<link rel="stylesheet" href="../resources/css/main.css">
 	</head>
 	<body>
-		<h1>공지 등록</h1>
+		<h1>공지 상세</h1>
 			<ul>
 				<li>
 					<label>제목</label>
