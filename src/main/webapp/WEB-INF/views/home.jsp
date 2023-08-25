@@ -16,6 +16,7 @@
 				<form action="/member/myPage.kh" method="post">
 					<input type="submit" value="마이페이지">
 				</form>
+				<a href="/board/list.kh">게시판</a>
 			</c:if>
 			<c:if test="${memberId eq null }">
 				<form action="/member/login.kh" method="post">

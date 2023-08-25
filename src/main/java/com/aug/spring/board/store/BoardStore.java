@@ -38,6 +38,6 @@ public interface BoardStore {
 	 * @param boardNo
 	 * @return
 	 */
-	Board selectBoardByNo(SqlSession sqlSession, Integer boardNo);
+	Board selectBoardByNo(SqlSession sqlSession, int boardNo);
 
 }

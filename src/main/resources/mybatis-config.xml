@@ -7,10 +7,12 @@
 		<typeAlias type="com.aug.spring.member.domain.Member" alias="Member"/>
 		<typeAlias type="com.aug.spring.notice.domain.Notice" alias="Notice"/>
 		<typeAlias type="com.aug.spring.board.domain.Board" alias="Board"/>
+		<typeAlias type="com.aug.spring.board.domain.Reply" alias="Reply"/>
 	</typeAliases>
 	<mappers>
 		<mapper resource="mappers/member/member-mapper.xml" />
 		<mapper resource="mappers/notice-mapper.xml" />
 		<mapper resource="mappers/board-mapper.xml" />
+		<mapper resource="mappers/reply-mapper.xml" />
 	</mappers>
 </configuration>

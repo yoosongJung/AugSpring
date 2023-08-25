@@ -21,13 +21,17 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.aug.spring.board.domain.Board;
 import com.aug.spring.board.domain.PageInfo;
+import com.aug.spring.board.domain.Reply;
 import com.aug.spring.board.service.BoardService;
+import com.aug.spring.board.service.ReplyService;
 
 @Controller
 public class BoardController {
 	
 	@Autowired
 	private BoardService bService;
+	@Autowired
+	private ReplyService rService;
 	
 	@RequestMapping(value="/board/detail.kh", method=RequestMethod.GET)
 	public ModelAndView showBoardDetail(ModelAndView mv,
@@ -35,6 +39,10 @@ public class BoardController {
 		try {
 			Board boardOne = bService.selectBoardByNo(boardNo);
 			if(boardOne != null) {
+				List<Reply> replyList = rService.selectReplyList(boardNo); 
+				if(replyList.size() > 0) {
+					mv.addObject("rList", replyList);
+				}
 				mv.addObject("board", boardOne);
 				mv.setViewName("board/detail");
 			} else {
