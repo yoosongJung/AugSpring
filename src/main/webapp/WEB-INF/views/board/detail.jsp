@@ -30,9 +30,19 @@
 				</li>
 			</ul>
 			<br>
+			<c:url var="boardDelUrl" value="/board/delete.kh">
+				<c:param name="boardNo" value="${board.boardNo }"></c:param>
+				<c:param name="boardWriter" value="${board.boardWriter }"></c:param>
+			</c:url>
+			<c:url var="modifyUrl" value="/board/modify.kh">
+				<c:param name="boardNo" value="${board.boardNo }"></c:param>
+				<c:param name="boardWriter" value="${board.boardWriter }"></c:param>
+			</c:url>
 			<div>
-				<button type="button" onclick="showModifyPage();">수정하기</button>
-				<button>삭제하기</button>
+				<c:if test="${board.boardWriter eq memberId }">
+					<button type="button" onclick="showModifyPage('${modifyUrl}');">수정하기</button>
+					<button type="button" onclick="deleteBoard('${boardDelUrl}');">삭제하기</button>
+				</c:if>
 				<button type="button" onclick="showBoardList();">목록으로</button>
 			</div>
 			<!-- 댓글 등록 -->
@@ -64,7 +74,12 @@
 					<td>${reply.rCreateDate }</td>
 					<td>
 						<a href="javascript:void(0);" onclick="showReplyModifyForm(this);">수정하기</a>
-						<a href="#">삭제하기</a>
+						<c:url var="delUrl" value="/reply/delete.kh">
+							<c:param name="replyNo" value="${reply.replyNo }"></c:param>
+							<c:param name="replyWriter" value="${reply.replyWriter }"></c:param>
+							<c:param name="refBoardNo" value="${reply.refBoardNo }"></c:param>						
+						</c:url>
+						<a href="javascript:void(0);" onclick="deleteReply('${delUrl}');">삭제하기</a>
 					</td>
 				</tr>
 				<tr id="replyModifyForm" style="display:none;">
@@ -80,8 +95,16 @@
 				</c:forEach>
 			</table>
 			<script>
-				function showModifyPage(){
-					location.href="/board/modify.kh?boardNo=${board.boardNo}";
+				function deleteBoard(url){
+					location.href=url;
+				}
+				
+				function deleteReply(url){
+					location.href=url;
+				}
+				
+				function showModifyPage(modifyUrl){
+					location.href=modifyUrl;
 				}
 				function showBoardList(){
 					location.href="/board/list.kh";

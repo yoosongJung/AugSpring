@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.aug.spring.board.domain.Reply;
@@ -82,6 +83,38 @@ public class ReplyController {
 			mv.addObject("msg", "관리자에게 문의바랍니다.");
 			mv.addObject("error", e.getMessage());
 			mv.addObject("url", url);
+			mv.setViewName("common/errorPage");
+		}
+		return mv;
+	}
+	
+	@RequestMapping(value="/delete.kh", method=RequestMethod.GET)
+	public ModelAndView deleteReply(ModelAndView mv,
+			@ModelAttribute Reply reply,
+			HttpSession session) {
+		try {
+			String memberId = (String)session.getAttribute("memberId");
+			String replyWriter = reply.getReplyWriter();
+			if(replyWriter != null && replyWriter.equals(memberId)) {
+				int result = rService.deleteReply(reply);
+				if(result > 0) {
+					mv.setViewName("redirect:/board/detail.kh?boardNo="+ reply.getRefBoardNo());
+				} else {
+					mv.addObject("msg", "댓글 삭제가 완료되지 않았습니다.");
+					mv.addObject("error", "댓글 삭제 실패");
+					mv.addObject("url", "/board/detail.kh?boardNo="+ reply.getRefBoardNo());
+					mv.setViewName("common/errorPage");
+				}
+			} else {
+				mv.addObject("msg", "자신의 댓글만 삭제할 수 있습니다.");
+				mv.addObject("error", "댓글 삭제 불가");
+				mv.addObject("url", "/board/detail.kh?boardNo="+ reply.getRefBoardNo());
+				mv.setViewName("common/errorPage");
+			}
+		} catch (Exception e) {
+			mv.addObject("msg", "관리자에게 문의바랍니다.");
+			mv.addObject("error", e.getMessage());
+			mv.addObject("url", "/board/detail.kh?boardNo="+ reply.getRefBoardNo());
 			mv.setViewName("common/errorPage");
 		}
 		return mv;

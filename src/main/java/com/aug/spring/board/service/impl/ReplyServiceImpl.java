@@ -34,5 +34,11 @@ public class ReplyServiceImpl implements ReplyService{
 		int result = rStore.updateReply(sqlSession, reply);
 		return result;
 	}
+
+	@Override
+	public int deleteReply(Reply reply) {
+		int result = rStore.deleteReply(sqlSession, reply);
+		return result;
+	}
 	
 }

@@ -34,4 +34,18 @@ public interface BoardService {
 	 */
 	Board selectBoardByNo(Integer boardNo);
 
+	/**
+	 * 게시글 삭제 Service
+	 * @param board
+	 * @return
+	 */
+	int deleteBoard(Board board);
+
+	/**
+	 * 게시글 수정 Service
+	 * @param board
+	 * @return
+	 */
+	int updateBoard(Board board);
+
 }

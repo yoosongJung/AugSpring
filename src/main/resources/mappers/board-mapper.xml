@@ -28,12 +28,20 @@
 	</select>
 	
 	<select id="selectBoardList" resultMap="boardResultMap">
-		SELECT * FROM BOARD_TBL ORDER BY BOARD_NO DESC
+		SELECT * FROM BOARD_TBL WHERE B_STATUS = 'Y' ORDER BY BOARD_NO DESC
 	</select>
 	
 	<select id="selectBoardByNo" resultMap="boardResultMap">
-		SELECT * FROM BOARD_TBL WHERE BOARD_NO = #{boardNo}
+		SELECT * FROM BOARD_TBL WHERE BOARD_NO = #{boardNo} AND B_STATUS = 'Y'
 	</select>
+	
+	<update id="deleteBoard">
+		UPDATE BOARD_TBL SET B_STATUS = 'N' WHERE BOARD_NO = #{boardNo} AND BOARD_WRITER = #{boardWriter}
+	</update>
+	
+	<update id="updateBoard">
+		UPDATE BOARD_TBL SET BOARD_TITLE = #{boardTitle}, BOARD_CONTENT = #{boardContent}, BOARD_FILENAME = #{boardFilename}, BOARD_FILERENAME = #{boardFileRename}, BOARD_FILEPATH = #{boardFilepath}, BOARD_FILELENGTH = #{boardFilelength}, B_UPDATE_DATE = DEFAULT WHERE BOARD_NO = #{boardNo}
+	</update>
 	
 	<!-- <update id="updateNotice">
 		UPDATE NOTICE_TBL SET NOTICE_SUBJECT = #{noticeSubject}, NOTICE_CONTENT = #{noticeContent}, NOTICE_FILENAME = #{noticeFileName}, NOTICE_FILERENAME = #{noticeFileRename}, NOTICE_FILEPATH = #{noticeFilePath}, NOTICE_FILELENGTH = #{noticeFileLength}, N_UPDATE_DATE = DEFAULT WHERE NOTICE_NO = #{noticeNo}

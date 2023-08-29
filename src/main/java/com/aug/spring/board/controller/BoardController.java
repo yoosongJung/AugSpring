@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -114,26 +115,140 @@ public class BoardController {
 			ModelAndView mv,
 			@ModelAttribute Board board,
 			@RequestParam(value="uploadFile", required=false) MultipartFile uploadFile,
-			HttpServletRequest request) {
+			HttpServletRequest request,
+			HttpSession session) {
 		try {
-			if(uploadFile != null && !uploadFile.getOriginalFilename().equals("")) {
-				// 파일 정보 및 저장
-				Map<String, Object> bMap = this.saveFile(request, uploadFile);
-				board.setBoardFilename((String)bMap.get("fileName"));
-				board.setBoardFileRename((String)bMap.get("fileRename"));
-				board.setBoardFilepath((String)bMap.get("filePath"));
-				board.setBoardFilelength((long)bMap.get("fileLength"));
+			String boardWriter = (String)session.getAttribute("memberId");
+			if(boardWriter != null && !boardWriter.equals("")) {
+				board.setBoardWriter(boardWriter);
+				if(uploadFile != null && !uploadFile.getOriginalFilename().equals("")) {
+					// 파일 정보 및 저장
+					Map<String, Object> bMap = this.saveFile(request, uploadFile);
+					board.setBoardFilename((String)bMap.get("fileName"));
+					board.setBoardFileRename((String)bMap.get("fileRename"));
+					board.setBoardFilepath((String)bMap.get("filePath"));
+					board.setBoardFilelength((long)bMap.get("fileLength"));
+				} else {
+					board.setBoardFilename("");
+					board.setBoardFileRename("");
+					board.setBoardFilepath("");
+				}
+				int result = bService.insertBoard(board);
+				mv.setViewName("redirect:/board/list.kh");
 			} else {
-				board.setBoardFilename("");
-				board.setBoardFileRename("");
-				board.setBoardFilepath("");
+				mv.addObject("msg", "로그인 정보가 존재하지 않습니다.");
+				mv.addObject("error", "로그인이 필요합니다.");
+				mv.addObject("url", "/index.jsp");
+				mv.setViewName("common/errorPage");
 			}
-			int result = bService.insertBoard(board);
-			mv.setViewName("redirect:/board/list.kh");
 		} catch (Exception e) {
 			mv.addObject("msg", "게시글 등록이 완료되지 않았습니다.");
 			mv.addObject("error", e.getMessage());
 			mv.addObject("url", "/board/write.kh");
+			mv.setViewName("common/errorPage");
+		}
+		return mv;
+	}
+	
+	@RequestMapping(value="/board/delete.kh", method=RequestMethod.GET)
+	public ModelAndView deleteBoard(ModelAndView mv,
+			@RequestParam("boardNo") Integer boardNo,
+			@RequestParam("boardWriter") String boardWriter,
+			HttpSession session) {
+		try {
+			String memberId = (String)session.getAttribute("memberId");
+			Board board = new Board();
+			board.setBoardNo(boardNo);
+			board.setBoardWriter(memberId);
+			if(boardWriter != null && boardWriter.equals(memberId)) {
+				int result = bService.deleteBoard(board);
+				if(result > 0) {
+					mv.setViewName("redirect:/board/list.kh");
+				} else {
+					mv.addObject("msg", "게시글 삭제가 완료되지 않았습니다.");
+					mv.addObject("error", "게시글 삭제 실패");
+					mv.addObject("url", "/board/detail.kh?boardNo="+boardNo);
+					mv.setViewName("common/errorPage");
+				}
+			} else {
+				mv.addObject("msg", "자신의 게시글만 삭제할 수 있습니다.");
+				mv.addObject("error", "게시글 삭제 불가");
+				mv.addObject("url", "/board/detail.kh?boardNo="+boardNo);
+				mv.setViewName("common/errorPage");
+			}
+		} catch (Exception e) {
+			mv.addObject("msg", "게시글 삭제가 완료되지 않았습니다.");
+			mv.addObject("error", e.getMessage());
+			mv.addObject("url", "/board/detail.kh?boardNo="+boardNo);
+			mv.setViewName("common/errorPage");
+		}
+		return mv;
+	}
+	
+	@RequestMapping(value="/board/modify.kh", method=RequestMethod.GET)
+	public ModelAndView showModifyNoticeForm(ModelAndView mv,
+			@RequestParam("boardNo") Integer boardNo) {
+		try {
+			Board board = bService.selectBoardByNo(boardNo);
+			mv.addObject("board", board);
+			mv.setViewName("board/modify");
+		} catch (Exception e) {
+			mv.addObject("msg", "게시글 조회가 완료되지 않았습니다.");
+			mv.addObject("error", e.getMessage());
+			mv.addObject("url", "/board/detail.kh?boardNo="+boardNo);
+			mv.setViewName("common/errorPage");
+		}
+		return mv;
+	}
+	
+	@RequestMapping(value="/board/modify.kh", method=RequestMethod.POST)
+	public ModelAndView modifyNotice(ModelAndView mv,
+			@ModelAttribute Board board,
+			@RequestParam(value="uploadFile", required=false) MultipartFile uploadFile,
+			HttpServletRequest request,
+			HttpSession session) {
+		try {
+			String memberId = (String)session.getAttribute("memberId");
+			String boardWriter = board.getBoardWriter();
+			if(boardWriter != null && boardWriter.equals(memberId)) {
+				if(uploadFile != null && !uploadFile.isEmpty()) {
+					// 기존 업로드된 파일 존재 여부 체크
+					String fileRename = board.getBoardFileRename();
+					if(fileRename != null) {
+						// 있으면 기존 파일 삭제
+						this.deleteFile(request, fileRename);
+					}
+					// 없으면 새로 업로드 하려는 파일 저장
+					Map<String, Object> infoMap = this.saveFile(request, uploadFile);
+					board.setBoardFilename((String)infoMap.get("fileName"));
+					board.setBoardFileRename((String)infoMap.get("fileRename"));
+					board.setBoardFilepath((String)infoMap.get("filePath"));
+					board.setBoardFilelength((long)infoMap.get("fileLength"));
+				} 
+				if(board.getBoardFilename() == null) {
+					board.setBoardFilename("");
+					board.setBoardFileRename("");
+					board.setBoardFilepath("");
+				}
+				int result = bService.updateBoard(board);
+				if(result > 0) {
+					mv.setViewName("redirect:/board/detail.kh?boardNo="+board.getBoardNo());
+				} else {
+					mv.addObject("msg", "게시글 수정이 완료되지 않았습니다.");
+					mv.addObject("error", "게시글 수정 실패");
+					mv.addObject("url", "/board/detail.kh?boardNo="+board.getBoardNo());
+					mv.setViewName("common/errorPage");
+				}
+			} else {
+				mv.addObject("msg", "게시글 수정 권한이 없습니다.");
+				mv.addObject("error", "게시글 수정 불가");
+				mv.addObject("url", "/board/detail.kh?boardNo="+board.getBoardNo());
+				mv.setViewName("common/errorPage");
+			}
+		} catch (Exception e) {
+			mv.addObject("msg", "게시글 수정이 완료되지 않았습니다.");
+			mv.addObject("error", e.getMessage());
+			mv.addObject("url", "/board/detail.kh?boardNo="+board.getBoardNo());
 			mv.setViewName("common/errorPage");
 		}
 		return mv;
@@ -168,5 +283,14 @@ public class BoardController {
 		fileMap.put("filePath", "../resources/buploadFiles/"+fileRename);
 		fileMap.put("fileLength", fileLength);
 		return fileMap;
+	}
+	
+	private void deleteFile(HttpServletRequest request, String fileRename) {
+		String root = request.getSession().getServletContext().getRealPath("resources");
+		String delFilepath = root + "\\buploadFiles\\" + fileRename;
+		File file = new File(delFilepath);
+		if(file.exists()) {
+			file.delete();
+		}
 	}
 }
