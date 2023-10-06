@@ -15,6 +15,11 @@ import org.springframework.web.bind.support.SessionStatus;
 import com.aug.spring.member.domain.Member;
 import com.aug.spring.member.service.MemberService;
 
+import com.twilio.Twilio;
+import com.twilio.converter.Promoter;
+import com.twilio.rest.api.v2010.account.Message;
+import com.twilio.type.PhoneNumber;
+
 @Controller
 public class MemberController {
 	
@@ -55,6 +60,12 @@ public class MemberController {
 			HttpSession session,
 			Model model) {
 		try {
+			Twilio.init("AC29d1a7ab6d45d02389be44a0a8e1e10d", "c9759807f7ae09785aefcadfa3b50663");
+			Message message = Message.creator(
+			    new PhoneNumber("+821072887513"),
+			    "MG4c413f681a8407bcd9be259ef8738286",
+			    "자바에서 됩니까")
+			.create();
 			Member mOne = service.checkMemberLogin(member);
 			if(mOne != null) {
 				session.setAttribute("memberId", mOne.getMemberId());

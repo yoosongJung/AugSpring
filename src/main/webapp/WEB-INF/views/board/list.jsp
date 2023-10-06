@@ -85,9 +85,38 @@
 				</tr>
 			</tfoot>
 		</table>
+		<button type="button" onclick="showNews();">최신 뉴스 파싱</button>
+		<table>
+			<colgroup>
+				<col width="10%"></col>
+				<col width="60%"></col>
+				<col width="15%"></col>
+				<col width="15%"></col>
+			</colgroup>
+			<thead>
+				<tr>
+					<th>번호</th>
+					<th>제목</th>
+					<th>언론사명</th>
+					<th>작성날짜</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+				</tr>
+			</tbody>
+		</table>
 		<script>
 			function showRegisterForm(){
 				location.href = "/board/write.kh";
+			}
+			
+			function showNews(){
+				location.href = "/board/news.kh";
 			}
 		</script>
 	</body>

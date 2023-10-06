@@ -11,6 +11,10 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -33,6 +37,38 @@ public class BoardController {
 	private BoardService bService;
 	@Autowired
 	private ReplyService rService;
+	
+	@RequestMapping(value="/board/news.kh", method=RequestMethod.GET)
+	public ModelAndView showNews(ModelAndView mv) {
+		try {
+			String address = "https://www.google.com/search?q=1%EC%9D%B8%EA%B0%80%EA%B5%AC&sca_esv=562622979&tbs=qdr:w&tbm=nws&sxsrf=AB5stBi_dHsefUAQUJ0lt87lS6i8Q2KwAA:1693884681565&ei=CaH2ZJCPIrLh2roPzrGXsAE&start=0&sa=N&ved=2ahUKEwjQt_CVxJKBAxWysFYBHc7YBRY4WhDy0wN6BAgEEAQ&biw=1569&bih=919&dpr=1";
+			Document doc = Jsoup.connect(address).get();
+			System.out.println(doc);
+			Elements LinkElements = doc.getElementsByClass("WlydOe");
+			for(Element element : LinkElements ) {
+				System.out.println(element.attr("href"));
+			}
+			Elements NewsSourceElements = doc.select("div.MgUUmf > span");
+			for(Element element : NewsSourceElements) {
+				System.out.println(element.text());
+			}
+			Elements titleElements = doc.select("div.n0jPhd");
+			for(Element element : titleElements) {
+				System.out.println(element.text());
+			}
+			Elements timeElements = doc.select("div.OSrXXb > span");
+			for(Element element : timeElements) {
+				System.out.println(element.text());
+			}
+		} catch (IOException e) {
+			mv.addObject("msg", "뉴스 업데이트가 완료되지 않았습니다.");
+			mv.addObject("error", "뉴스 조회 실패");
+			mv.addObject("url", "/board/list.kh");
+			mv.setViewName("common/errorPage");
+		}
+		
+		return mv;
+	}
 	
 	@RequestMapping(value="/board/detail.kh", method=RequestMethod.GET)
 	public ModelAndView showBoardDetail(ModelAndView mv,
